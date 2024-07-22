@@ -26,7 +26,8 @@ const points = [
   */
   -0.5, -0.5, 0.0,  1.0,  0.0,  0.0,
   0.5,  -0.5, 0.0,  0.0,  1.0,  0.0,
-  0.0,  0.5,  0.0,  0.0,  0.0,  1.0
+  0.5,  0.5,  0.0,  0.0,  0.0,  1.0,
+  -0.5, 0.5,  0.0,  1.0,  0.0,  1.0,
 ];
 
 const vbo = webgl.createBuffer();
@@ -36,7 +37,8 @@ webgl.bindBuffer(webgl.ARRAY_BUFFER, null);
 
 // Indices
 const indices = [
-  0, 1, 2
+  0, 1, 2,
+  0, 2, 3
 ]
 const ibo = webgl.createBuffer();
 webgl.bindBuffer(webgl.ELEMENT_ARRAY_BUFFER, ibo);
