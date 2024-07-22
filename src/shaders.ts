@@ -6,11 +6,15 @@ export const vertexShaderSource = `#version 300 es
   layout (location = 1) in vec3 a_color;
   layout (location = 2) in vec2 a_textCoord;
   layout (location = 3) in vec3 a_normal;
+
+  uniform mat4 u_model;
+  uniform mat4 u_view;
+  uniform mat4 u_projection;
   
   out vec4 vertexColor;
 
   void main() {
-    gl_Position = vec4(a_position, 1.0);
+    gl_Position = u_projection * u_view * u_model * vec4(a_position, 1.0);
     vertexColor = vec4(a_color, 1.0);
   }
 `;
@@ -30,7 +34,22 @@ export class Shader {
   private readonly $program: WebGLProgram | null;
 
   public get program() {
+    if (!this.$program) {
+      throw new Error('Attempted to get program but it was not initialised');
+    }
     return this.$program;
+  }
+
+  public get uModelUniformLocation() {
+    return renderer.webgl.getUniformLocation(this.program, 'u_model');
+  }
+
+  public get uViewUniformLocation() {
+    return renderer.webgl.getUniformLocation(this.program, 'u_view');
+  }
+
+  public get uProjectionUniformLocation() {
+    return renderer.webgl.getUniformLocation(this.program, 'u_projection');
   }
 
   constructor() {
