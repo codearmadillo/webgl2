@@ -1,3 +1,9 @@
+/**
+ * Improvements:
+ * - Rendering context is bound to a canvas
+ * - It should be possible to create elements
+ */
+
 import { mat4 } from "gl-matrix";
 import { createDebugToolSpacing, createRangeDebugTool } from "./debug";
 import { Shader } from "./shaders";
