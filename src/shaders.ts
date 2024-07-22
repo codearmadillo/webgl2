@@ -1,56 +1,69 @@
-import { ShaderType } from './types';
-
 export const vertexShaderSource = `
   #version 300 es
   
-  // an attribute is an input (in) to a vertex shader.
-  // It will receive data from a buffer
   in vec4 a_position;
   
-  // all shaders have a main function
   void main() {
-    // gl_Position is a special variable a vertex shader
-    // is responsible for setting
     gl_Position = a_position;
   }
 `;
 export const fragmentShaderSource = `
   #version 300 es
   
-  // fragment shaders don't have a default precision so we need
-  // to pick one. highp is a good default. It means "high precision"
   precision highp float;
   
-  // we need to declare an output for the fragment shader
   out vec4 outColor;
   
   void main() {
-    // Just set the output to a constant reddish-purple
-    outColor = vec4(1, 0, 0.5, 1);
+    outColor = vec4(1, 1, 1, 1);
   }
 `;
 
-class Shader {
-  private readonly type: ShaderType;
-  constructor(type: ShaderType) {
-    this.type = type;
-    this.load();
-  }
-  private load() {
-    const source =
-      this.type === ShaderType.FRAGMENT
-        ? fragmentShaderSource
-        : vertexShaderSource;
-  }
-}
+export class Shader {
+  private readonly program: WebGLProgram | null;
+  private readonly webgl: WebGL2RenderingContext;
 
-export class VertexShader extends Shader {
-  constructor() {
-    super(ShaderType.VERTEX);
+  constructor(webgl: WebGL2RenderingContext) {
+    this.webgl = webgl;
+    this.program = webgl.createProgram();
+    if (!this.program) {
+      throw new Error('Failed to create shader program');
+    }
+
+    const fragmentShader = this.createShader(webgl.FRAGMENT_SHADER, webgl);
+    const vertexShader = this.createShader(webgl.VERTEX_SHADER, webgl);
+    
+    webgl.attachShader(this.program, fragmentShader);
+    webgl.attachShader(this.program, vertexShader);
+
+    webgl.linkProgram(this.program);
+
+    if (!webgl.getProgramParameter(this.program, webgl.LINK_STATUS)) {
+      const log = webgl.getProgramInfoLog(this.program);
+      throw new Error(`Failed to link shader program: ${log}`);
+    }
+
+    webgl.detachShader(this.program, fragmentShader);
+    webgl.detachShader(this.program, vertexShader);
+
+    webgl.deleteShader(fragmentShader);
+    webgl.deleteBuffer(vertexShader);
   }
-}
-export class FragmentShader extends Shader {
-  constructor() {
-    super(ShaderType.FRAGMENT);
+
+  bind() {
+    this.webgl.useProgram(this.program);
+  }
+
+  private createShader(type: number): WebGLShader {
+    const source = type === this.webgl.FRAGMENT_SHADER ? fragmentShaderSource : vertexShaderSource;
+    const shader = this.webgl.createShader(type);
+    if (!shader) {
+      throw new Error(`Failed to create ${type === this.webgl.FRAGMENT_SHADER ? 'fragment' : 'vertex'} shader`);
+    }
+
+    this.webgl.shaderSource(shader, source);
+    this.webgl.compileShader(shader);
+
+    return shader;
   }
 }

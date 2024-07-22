@@ -1,4 +1,4 @@
-import { FragmentShader, VertexShader } from './shaders';
+import { Shader } from './shaders';
 
 /**
  * Checklist:
@@ -22,5 +22,5 @@ if (webgl === null) {
 webgl.clearColor(0.0, 0.0, 0.0, 1.0);
 webgl.clear(webgl.COLOR_BUFFER_BIT);
 
-const fragment = new FragmentShader();
-const vertex = new VertexShader();
+const shader = new Shader(webgl);
+shader.bind();
