@@ -1,5 +1,6 @@
+import { simpleCube } from './elements/element';
 import { Shader } from './shaders';
-import { Shape } from './shape';
+import { ObjShape, Shape } from './shape';
 import { Vertex } from './types';
 
 /**
@@ -34,7 +35,6 @@ if (webgl === null) {
 }
 
 const shader = new Shader(webgl);
-const cube = new Shape(webgl, cubeVertices, cubeIndices);
 
 // Configure webgl
 webgl.enable(webgl.BLEND);
@@ -46,4 +46,4 @@ webgl.useProgram(shader.program);
 webgl.clearColor(0.0, 0.0, 0.0, 1.0);
 webgl.clear(webgl.COLOR_BUFFER_BIT);
 
-cube.draw();
+simpleCube.draw();
