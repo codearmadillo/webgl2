@@ -1,21 +1,24 @@
-export const vertexShaderSource = `
-  #version 300 es
+export const vertexShaderSource = `#version 300 es
   
-  in vec4 a_position;
+  layout (location = 0) in vec3 a_position;
+  layout (location = 1) in vec3 a_color;
   
+  out vec4 vertexColor;
+
   void main() {
-    gl_Position = a_position;
+    gl_Position = vec4(a_position, 1.0);
+    vertexColor = vec4(a_color, 1.0);
   }
 `;
-export const fragmentShaderSource = `
-  #version 300 es
+export const fragmentShaderSource = `#version 300 es
   
   precision highp float;
   
+  in vec4 vertexColor;
   out vec4 outColor;
   
   void main() {
-    outColor = vec4(1, 1, 1, 1);
+    outColor = vertexColor;
   }
 `;
 
@@ -51,7 +54,7 @@ export class Shader {
     webgl.detachShader(this.$program, vertexShader);
 
     webgl.deleteShader(fragmentShader);
-    webgl.deleteBuffer(vertexShader);
+    webgl.deleteShader(vertexShader);
   }
 
   private createShader(type: number): WebGLShader {
@@ -63,6 +66,11 @@ export class Shader {
 
     this.$webgl.shaderSource(shader, source);
     this.$webgl.compileShader(shader);
+
+    if (!this.$webgl.getShaderParameter(shader, this.$webgl.COMPILE_STATUS)) {
+      const log = this.$webgl.getShaderInfoLog(shader);
+      throw new Error(`Failed to create ${type === this.$webgl.FRAGMENT_SHADER ? 'fragment' : 'vertex'} shader: ${log}`);
+    }
 
     return shader;
   }
