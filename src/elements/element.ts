@@ -1,28 +1,21 @@
 import { getWebGlContext } from "../webgl";
+import { Index, Vertex } from "./types";
 
-type Vertex = {
-    coordinates: [ number, number, number ],
-    color?: [ number, number, number ],
-    textureCoordinates?: [ number, number ],
-    normals?: [ number, number, number ]
-}
-type Index = number;
-
-
-export interface ElementLoader<T> {
+export interface WebGlElementLoader<T> {
     buildWebGlData(rawData: T): { vertices: Vertex[], indices: Index[] };
 }
-export class Element<T> {
+
+export class WebGlElement<T> {
     private readonly $webgl: WebGL2RenderingContext;
     private readonly $vertices: Vertex[];
     private readonly $indices: Index[];
-    private readonly $loader: ElementLoader<T>;
+    private readonly $loader: WebGlElementLoader<T>;
 
     private $vbo!: WebGLBuffer | null;
     private $ibo!: WebGLBuffer | null;
     private $vao!: WebGLVertexArrayObject | null;
 
-    constructor(data: T, loader: new (data: T) => ElementLoader<T>) {
+    constructor(data: T, loader: new (data: T) => WebGlElementLoader<T>) {
         this.$loader = new loader(data);
         this.$webgl = getWebGlContext();
 
@@ -93,33 +86,4 @@ export class Element<T> {
             ...vertex.normals ?? [ 0, 0, 0 ]
         ];
     }
-}
-
-
-class ShapeElementLoader implements ElementLoader<{ vertices: Vertex[], indices: Index[] }> {
-    buildWebGlData(data: { vertices: Vertex[], indices: Index[] }) {
-        return {
-            vertices: data.vertices,
-            indices: data.indices
-        }
-    }
-}
-
-
-
-// Simple cube
-const simpleCubeVertices: Vertex[] = [
-    { coordinates: [ -0.5, -0.5, 0.0 ] },
-    { coordinates: [ 0.5, -0.5, 0.0 ] },
-    { coordinates: [ 0.5, 0.5, 0.0 ] },
-    { coordinates: [ -0.5, 0.5, 0.0 ] },
-];
-const simpleCubeIndices: Index[] = [
-    0, 1, 2,
-    0, 2, 3
-];
-const simpleCube = new Element({ vertices: simpleCubeVertices, indices: simpleCubeIndices }, ShapeElementLoader);
-
-export {
-    simpleCube
 }

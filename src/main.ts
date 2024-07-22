@@ -1,21 +1,7 @@
-import { simpleCube } from './elements/element';
+import { simpleCubeIndices, simpleCubeVertices } from './elements/data';
+import { WebGlElement } from './elements/element';
+import { ShapeWebGlElementLoader } from './elements/element.shape';
 import { Shader } from './shaders';
-import { ObjShape, Shape } from './shape';
-import { Vertex } from './types';
-
-/**
- * Simple cube
- */
-const cubeVertices: Vertex[] = [
-  new Vertex([ -0.5, -0.5, 0.0 ], [ 1.0,  0.0,  0.0]),
-  new Vertex([ 0.5, -0.5, 0.0 ],  [ 0.0,  1.0,  0.0]),
-  new Vertex([ 0.5, 0.5, 0.0 ],   [ 0.0,  0.0,  1.0]),
-  new Vertex([ -0.5, 0.5, 0.0 ],  [ 1.0,  0.0,  1.0]),
-];
-const cubeIndices = [
-  0, 1, 2,
-  0, 2, 3
-];
 
 /**
  * Checklist:
@@ -35,6 +21,9 @@ if (webgl === null) {
 }
 
 const shader = new Shader(webgl);
+
+// Create elements
+const simpleCube = new WebGlElement({ vertices: simpleCubeVertices, indices: simpleCubeIndices }, ShapeWebGlElementLoader);
 
 // Configure webgl
 webgl.enable(webgl.BLEND);
