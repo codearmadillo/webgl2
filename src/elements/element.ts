@@ -1,4 +1,4 @@
-import { getWebGlContext } from "../webgl";
+import { renderer } from "../renderer";
 import { Index, Vertex } from "./types";
 
 export interface WebGlElementLoader<T> {
@@ -6,7 +6,6 @@ export interface WebGlElementLoader<T> {
 }
 
 export class WebGlElement<T> {
-    private readonly $webgl: WebGL2RenderingContext;
     private readonly $vertices: Vertex[];
     private readonly $indices: Index[];
     private readonly $loader: WebGlElementLoader<T>;
@@ -17,7 +16,6 @@ export class WebGlElement<T> {
 
     constructor(data: T, loader: new (data: T) => WebGlElementLoader<T>) {
         this.$loader = new loader(data);
-        this.$webgl = getWebGlContext();
 
         const { vertices, indices } = this.$loader.buildWebGlData(data);
         this.$vertices = vertices;
@@ -27,56 +25,56 @@ export class WebGlElement<T> {
     }
     draw() {
         this.bind();
-        this.$webgl.drawElements(this.$webgl.TRIANGLES, this.$indices.length, this.$webgl.UNSIGNED_SHORT, 0);
+        renderer.webgl.drawElements(renderer.webgl.TRIANGLES, this.$indices.length, renderer.webgl.UNSIGNED_SHORT, 0);
         this.unbind();
     }
     private buildWebGlBuffers() {
-        this.$vao = this.$webgl.createVertexArray();
+        this.$vao = renderer.webgl.createVertexArray();
         if (!this.$vao) {
             throw new Error(`Failed to create vertex array object`);
         }
         this.bind();
 
         // VBO
-        this.$vbo = this.$webgl.createBuffer();
+        this.$vbo = renderer.webgl.createBuffer();
         if (!this.$vbo) {
             throw new Error('Failed to create vertex buffer object');
         } 
-        this.$webgl.bindBuffer(this.$webgl.ARRAY_BUFFER, this.$vbo);
-        this.$webgl.bufferData(this.$webgl.ARRAY_BUFFER, new Float32Array(
+        renderer.webgl.bindBuffer(renderer.webgl.ARRAY_BUFFER, this.$vbo);
+        renderer.webgl.bufferData(renderer.webgl.ARRAY_BUFFER, new Float32Array(
             this.$vertices.map((vertex) => this.serialiseVertex(vertex)).flat()
-        ), this.$webgl.STATIC_DRAW);
+        ), renderer.webgl.STATIC_DRAW);
 
         // Bind VBO attributes
         const vertexByteSize = (3 + 3 + 3 + 2) * Float32Array.BYTES_PER_ELEMENT;
 
-        this.$webgl.vertexAttribPointer(0, 3, this.$webgl.FLOAT, false, vertexByteSize, 0);
-        this.$webgl.enableVertexAttribArray(0);
+        renderer.webgl.vertexAttribPointer(0, 3, renderer.webgl.FLOAT, false, vertexByteSize, 0);
+        renderer.webgl.enableVertexAttribArray(0);
 
-        this.$webgl.vertexAttribPointer(1, 3, this.$webgl.FLOAT, false, vertexByteSize, (3) * Float32Array.BYTES_PER_ELEMENT);
-        this.$webgl.enableVertexAttribArray(1);
+        renderer.webgl.vertexAttribPointer(1, 3, renderer.webgl.FLOAT, false, vertexByteSize, (3) * Float32Array.BYTES_PER_ELEMENT);
+        renderer.webgl.enableVertexAttribArray(1);
 
-        this.$webgl.vertexAttribPointer(2, 2, this.$webgl.FLOAT, false, vertexByteSize, (3 + 3) * Float32Array.BYTES_PER_ELEMENT);
-        this.$webgl.enableVertexAttribArray(2);
+        renderer.webgl.vertexAttribPointer(2, 2, renderer.webgl.FLOAT, false, vertexByteSize, (3 + 3) * Float32Array.BYTES_PER_ELEMENT);
+        renderer.webgl.enableVertexAttribArray(2);
 
-        this.$webgl.vertexAttribPointer(3, 3, this.$webgl.FLOAT, false, vertexByteSize, (3 + 3 + 2) * Float32Array.BYTES_PER_ELEMENT);
-        this.$webgl.enableVertexAttribArray(3);
+        renderer.webgl.vertexAttribPointer(3, 3, renderer.webgl.FLOAT, false, vertexByteSize, (3 + 3 + 2) * Float32Array.BYTES_PER_ELEMENT);
+        renderer.webgl.enableVertexAttribArray(3);
 
         // IBO
-        this.$ibo = this.$webgl.createBuffer();
+        this.$ibo = renderer.webgl.createBuffer();
         if (!this.$ibo) {
             throw new Error('Failed to create IBO');
         }
-        this.$webgl.bindBuffer(this.$webgl.ELEMENT_ARRAY_BUFFER, this.$ibo);
-        this.$webgl.bufferData(this.$webgl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.$indices), this.$webgl.STATIC_DRAW);
+        renderer.webgl.bindBuffer(renderer.webgl.ELEMENT_ARRAY_BUFFER, this.$ibo);
+        renderer.webgl.bufferData(renderer.webgl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.$indices), renderer.webgl.STATIC_DRAW);
 
         this.unbind();
     }
     private bind() {
-        this.$webgl.bindVertexArray(this.$vao);
+        renderer.webgl.bindVertexArray(this.$vao);
     }
     private unbind() {
-        this.$webgl.bindVertexArray(null);
+        renderer.webgl.bindVertexArray(null);
     }
     private serialiseVertex(vertex: Vertex) {
         return [

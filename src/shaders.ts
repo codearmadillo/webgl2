@@ -1,3 +1,5 @@
+import { renderer } from "./renderer";
+
 export const vertexShaderSource = `#version 300 es
   
   layout (location = 0) in vec3 a_position;
@@ -26,52 +28,50 @@ export const fragmentShaderSource = `#version 300 es
 
 export class Shader {
   private readonly $program: WebGLProgram | null;
-  private readonly $webgl: WebGL2RenderingContext;
 
   public get program() {
     return this.$program;
   }
 
-  constructor(webgl: WebGL2RenderingContext) {
-    this.$webgl = webgl;
-    this.$program = webgl.createProgram();
+  constructor() {
+    this.$program = renderer.webgl.createProgram();
     if (!this.$program) {
       throw new Error('Failed to create shader program');
     }
 
-    const fragmentShader = this.createShader(webgl.FRAGMENT_SHADER);
-    const vertexShader = this.createShader(webgl.VERTEX_SHADER);
+    const fragmentShader = this.createShader(renderer.webgl.FRAGMENT_SHADER);
+    const vertexShader = this.createShader(renderer.webgl.VERTEX_SHADER);
     
-    webgl.attachShader(this.$program, fragmentShader);
-    webgl.attachShader(this.$program, vertexShader);
+    renderer.webgl.attachShader(this.$program, fragmentShader);
+    renderer.webgl.attachShader(this.$program, vertexShader);
 
-    webgl.linkProgram(this.$program);
+    renderer.webgl.linkProgram(this.$program);
 
-    if (!webgl.getProgramParameter(this.$program, webgl.LINK_STATUS)) {
-      const log = webgl.getProgramInfoLog(this.$program);
+    if (!renderer.webgl.getProgramParameter(this.$program, renderer.webgl.LINK_STATUS)) {
+      const log = renderer.webgl.getProgramInfoLog(this.$program);
       throw new Error(`Failed to link shader program: ${log}`);
     }
 
-    webgl.detachShader(this.$program, fragmentShader);
-    webgl.detachShader(this.$program, vertexShader);
+    renderer.webgl.detachShader(this.$program, fragmentShader);
+    renderer.webgl.detachShader(this.$program, vertexShader);
 
-    webgl.deleteShader(fragmentShader);
-    webgl.deleteShader(vertexShader);
+    renderer.webgl.deleteShader(fragmentShader);
+    renderer.webgl.deleteShader(vertexShader);
   }
 
   private createShader(type: number): WebGLShader {
-    const source = type === this.$webgl.FRAGMENT_SHADER ? fragmentShaderSource : vertexShaderSource;
-    const shader = this.$webgl.createShader(type);
+    const source = type === renderer.webgl.FRAGMENT_SHADER ? fragmentShaderSource : vertexShaderSource;
+    const shader = renderer.webgl.createShader(type);
     if (!shader) {
-      throw new Error(`Failed to create ${type === this.$webgl.FRAGMENT_SHADER ? 'fragment' : 'vertex'} shader`);
+      throw new Error(`Failed to create ${type === renderer.webgl.FRAGMENT_SHADER ? 'fragment' : 'vertex'} shader`);
     }
 
-    this.$webgl.shaderSource(shader, source);
-    this.$webgl.compileShader(shader);
+    renderer.webgl.shaderSource(shader, source);
+    renderer.webgl.compileShader(shader);
 
-    if (!this.$webgl.getShaderParameter(shader, this.$webgl.COMPILE_STATUS)) {
-      const log = this.$webgl.getShaderInfoLog(shader);
-      throw new Error(`Failed to create ${type === this.$webgl.FRAGMENT_SHADER ? 'fragment' : 'vertex'} shader: ${log}`);
+    if (!renderer.webgl.getShaderParameter(shader, renderer.webgl.COMPILE_STATUS)) {
+      const log = renderer.webgl.getShaderInfoLog(shader);
+      throw new Error(`Failed to create ${type === renderer.webgl.FRAGMENT_SHADER ? 'fragment' : 'vertex'} shader: ${log}`);
     }
 
     return shader;
