@@ -1,9 +1,17 @@
 import "./style.css";
 
-import { simpleCubeIndices, simpleCubeVertices } from './elements/data';
+import {
+  planeIndices,
+  simpleCubeIndices,
+  simpleCubeVertices,
+  xyPlaneVertices,
+  xzPlaneVertices,
+  yzPlaneVertices
+} from './elements/data';
 import { WebGlElement } from './elements/element';
 import { ShapeWebGlElementLoader } from './elements/loaders';
 import { renderer } from './renderer';
+import {config} from "./config.ts";
 
 /**
  * Checklist:
@@ -12,11 +20,28 @@ import { renderer } from './renderer';
  * - Quaternions
  */
 
+const canvasHtmlSelector = '#canvas';
+const canvas = document.querySelector<HTMLCanvasElement>(canvasHtmlSelector);
+
 renderer
-  .attach('#canvas')
+  .attach(canvasHtmlSelector)
   .frame(() => {
-    simpleCube.draw();
+    if (config.enableAxisPlanes) {
+      planes.forEach(plane => {
+        plane.draw();
+      });
+    }
+    cube.draw();
   })
   .start();
 
-const simpleCube = new WebGlElement(renderer, { vertices: simpleCubeVertices, indices: simpleCubeIndices }, ShapeWebGlElementLoader);
+const cube = new WebGlElement(renderer, { vertices: simpleCubeVertices, indices: simpleCubeIndices }, ShapeWebGlElementLoader);
+const planes = [
+  new WebGlElement(renderer, { vertices: xzPlaneVertices, indices: planeIndices }, ShapeWebGlElementLoader),
+  new WebGlElement(renderer, { vertices: xyPlaneVertices, indices: planeIndices }, ShapeWebGlElementLoader),
+  new WebGlElement(renderer, { vertices: yzPlaneVertices, indices: planeIndices }, ShapeWebGlElementLoader),
+]
+
+setInterval(() => {
+  cube.rotateX(0.5);
+}, 5);

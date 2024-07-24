@@ -21,8 +21,11 @@ class Renderer implements WebGlRenderer {
     private $canvas!: HTMLCanvasElement | null;
     private $callback!: () => any;
     private $dirty = true;
-    private $interval = 200;
+    private $interval = 1000 / 60;
     private $projection: mat4 = mat4.create();
+
+    private $width!: number;
+    private $height!: number;
 
     public get camera() {
         return this.$camera;
@@ -48,6 +51,8 @@ class Renderer implements WebGlRenderer {
         if (!this.$canvas) {
             throw new Error('Failed to obtain rendering canvas with id' + canvasHtmlSelector);
         }
+        this.$width = this.$canvas.width;
+        this.$height = this.$canvas.height;
 
         this.$webgl = this.$canvas.getContext('webgl2');
         if (!this.$webgl) {
@@ -55,20 +60,19 @@ class Renderer implements WebGlRenderer {
         }
 
         this.$shader = new Shader(this.$webgl);
+        mat4.perspective(this.$projection, 45 * Math.PI / 180, this.$width / this.$height, 0.1, 500.0);
 
         this.webgl.enable(this.webgl.BLEND);
+        this.webgl.enable(this.webgl.DEPTH_TEST);
         this.webgl.blendFunc(this.webgl.SRC_ALPHA, this.webgl.ONE_MINUS_SRC_ALPHA);
 
         return this;
     }
 
     start() {
-        setInterval(() => {
-            if (!this.$dirty) {
-                return;
-            }
-            this.webgl.useProgram(this.$shader.program);
+        this.webgl.useProgram(this.$shader.program);
 
+        setInterval(() => {
             this.webgl.uniformMatrix4fv(this.$shader.uViewUniformLocation, false, this.$camera.view);
             this.webgl.uniformMatrix4fv(this.$shader.uProjectionUniformLocation, false, this.$projection);
 
@@ -76,7 +80,6 @@ class Renderer implements WebGlRenderer {
             this.webgl.clear(this.webgl.COLOR_BUFFER_BIT);
 
             this.$callback();
-            this.markAsPristine();
         }, this.$interval);
     }
 
@@ -85,7 +88,7 @@ class Renderer implements WebGlRenderer {
         return this;
     }
 
-    private markAsDirty() {
+    markAsDirty() {
         this.$dirty = true;
     }
 

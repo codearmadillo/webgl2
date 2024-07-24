@@ -28,6 +28,15 @@ export class WebGlElement<T> {
 
         this.buildWebGlBuffers();
     }
+    rotateX(degrees: number) {
+        mat4.rotate(this.$model, this.$model, degrees * Math.PI / 180, [ 1, 0, 0 ]);
+    }
+    rotateY(degrees: number) {
+        mat4.rotate(this.$model, this.$model, degrees * Math.PI / 180, [ 0, 1, 0 ]);
+    }
+    rotateZ(degrees: number) {
+        mat4.rotate(this.$model, this.$model, degrees * Math.PI / 180, [ 0, 0, 1 ]);
+    }
     draw() {
         this.bind();
         this.$renderer.webgl.uniformMatrix4fv(this.$renderer.shader.uModelUniformLocation, false, this.$model);

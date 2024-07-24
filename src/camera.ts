@@ -5,7 +5,7 @@ export interface WebGlCamera {
 }
 
 export class Camera implements WebGlCamera {
-  private readonly $position: vec3 = vec3.clone([ 10, 7.5, 7.5 ]);
+  private readonly $position: vec3 = vec3.clone([ 50, 20, 50 ]);
   private readonly $target: vec3 = vec3.clone([ 0, 0, 0 ]);
   private readonly $up: vec3 = vec3.clone([ 0, 1, 0 ]);
   private readonly $view: mat4 = mat4.create();
@@ -15,6 +15,6 @@ export class Camera implements WebGlCamera {
   }
 
   constructor() {
-    // mat4.lookAt(this.$view, this.$position, this.$target, this.$up);
+    mat4.lookAt(this.$view, this.$position, this.$target, this.$up);
   }
 }
