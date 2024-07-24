@@ -1,6 +1,6 @@
 import { type WebGlRenderer } from "../renderer";
 import { Index, Vertex } from "./types";
-import { mat4 } from "gl-matrix";
+import {mat4, vec3} from "gl-matrix";
 
 export interface WebGlElementLoader<T> {
     buildWebGlData(rawData: T): { vertices: Vertex[], indices: Index[] };
@@ -28,20 +28,14 @@ export class WebGlElement<T> {
 
         this.buildWebGlBuffers();
     }
-    rotateX(degrees: number) {
-        mat4.rotate(this.$model, this.$model, degrees * Math.PI / 180, [ 1, 0, 0 ]);
-    }
-    rotateY(degrees: number) {
-        mat4.rotate(this.$model, this.$model, degrees * Math.PI / 180, [ 0, 1, 0 ]);
-    }
-    rotateZ(degrees: number) {
-        mat4.rotate(this.$model, this.$model, degrees * Math.PI / 180, [ 0, 0, 1 ]);
-    }
     draw() {
         this.bind();
         this.$renderer.webgl.uniformMatrix4fv(this.$renderer.shader.uModelUniformLocation, false, this.$model);
         this.$renderer.webgl.drawElements(this.$renderer.webgl.TRIANGLES, this.$indices.length, this.$renderer.webgl.UNSIGNED_SHORT, 0);
         this.unbind();
+    }
+    translate(xyz: vec3) {
+        mat4.translate(this.$model, this.$model, xyz);
     }
     private buildWebGlBuffers() {
         this.$vao = this.$renderer.webgl.createVertexArray();

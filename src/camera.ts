@@ -2,6 +2,8 @@ import {vec3, mat4} from "gl-matrix";
 
 export interface WebGlCamera {
   readonly view: mat4;
+  rotate(angleInDegrees: number): void;
+  translate(xyz: vec3): void;
 }
 
 export class Camera implements WebGlCamera {
@@ -16,5 +18,13 @@ export class Camera implements WebGlCamera {
 
   constructor() {
     mat4.lookAt(this.$view, this.$position, this.$target, this.$up);
+  }
+
+  rotate(angleInDegrees: number) {
+    mat4.rotateY(this.$view, this.$view, angleInDegrees * Math.PI / 180);
+  }
+
+  translate(xyz: vec3) {
+    mat4.translate(this.$view, this.$view, xyz);
   }
 }

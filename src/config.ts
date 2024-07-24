@@ -1,6 +1,8 @@
 type Config = {
   enableAxisPlanes: boolean;
+  canvasHtmlSelector: string;
 }
 export const config: Config = {
-  enableAxisPlanes: false
+  enableAxisPlanes: false,
+  canvasHtmlSelector: '#canvas',
 }
