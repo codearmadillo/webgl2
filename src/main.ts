@@ -2,7 +2,7 @@ import "./style.css";
 
 import { simpleCubeIndices, simpleCubeVertices } from './elements/data';
 import { WebGlElement } from './elements/element';
-import { ShapeWebGlElementLoader } from './elements/element.shape';
+import { ShapeWebGlElementLoader } from './elements/loaders';
 import { renderer } from './renderer';
 
 /**
@@ -13,10 +13,10 @@ import { renderer } from './renderer';
  */
 
 renderer
-  .init()
-  .onRender(() => {
+  .attach('#canvas')
+  .frame(() => {
     simpleCube.draw();
   })
   .start();
 
-const simpleCube = new WebGlElement({ vertices: simpleCubeVertices, indices: simpleCubeIndices }, ShapeWebGlElementLoader);
+const simpleCube = new WebGlElement(renderer, { vertices: simpleCubeVertices, indices: simpleCubeIndices }, ShapeWebGlElementLoader);
