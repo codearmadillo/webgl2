@@ -5,9 +5,11 @@ import {Entity} from "../../types/ecs.ts";
 import {Constructor} from "../../types/common.ts";
 import {Metadata} from "../../enums/metadata.ts";
 import {ComponentArray} from "./component-array.ts";
+import "reflect-metadata";
 
 export class ComponentManager implements IComponentManager {
   private static $instance: ComponentManager;
+  private $count: number = 0;
   private $arrays: Map<string, IComponentArray<any>> = new Map();
   private get $entities() {
     return EntityManager.instance;
@@ -25,6 +27,8 @@ export class ComponentManager implements IComponentManager {
     if (this.$arrays.has(uuid)) {
       throw new Error(`Failed to register component of type ${component.name} - already registered`);
     }
+    // Reflect.defineMetadata(Metadata.ComponentSignature, component.prototype, this.$count);
+    this.$count++;
     this.$arrays.set(uuid, new ComponentArray<T>());
   }
 
@@ -41,6 +45,11 @@ export class ComponentManager implements IComponentManager {
   get(entity: Entity, component: Constructor<T>): T {
     const uuid = this.getUuidOrThrow(component);
     return this.$arrays.get(uuid).get(entity);
+  }
+
+  getComponentSignatureIndex(component: Constructor<T>): number {
+    const uuid = this.getUuidOrThrow(component);
+    return Array.from(this.$arrays.keys()).indexOf(uuid);
   }
 
   has(entity: Entity, component: Constructor<T>): boolean {
