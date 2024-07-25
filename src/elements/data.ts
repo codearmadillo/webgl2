@@ -1,4 +1,5 @@
 import { Index, Vertex } from "./types";
+import {vec3} from "gl-matrix";
 
 const planeSize = 16;
 
@@ -25,19 +26,22 @@ export const planeIndices: Index[] = [
     0, 2, 3
 ];
 
+const white: vec3 = [ 255, 255, 255 ];
+
 export const simpleCubeVertices: Vertex[] = [
-    { coordinates: [ -5, -5, -5 ],  color: [ 255, 0, 0 ]},
-    { coordinates: [ 5, -5, -5 ],   color: [ 0, 255, 0 ]},
-    { coordinates: [ 5, 5, -5 ],    color: [ 0, 0, 255 ]},
-    { coordinates: [ -5, 5, -5 ],   color: [ 255, 255, 0 ]},
-    { coordinates: [ -5, -5, 5 ],   color: [ 255, 0, 255 ]},
-    { coordinates: [ 5, -5, 5 ],    color: [ 0, 255, 255 ]},
-    { coordinates: [ 5, 5, 5 ],     color: [ 255, 128, 0 ]},
-    { coordinates: [ -5, 5, 5 ],    color: [ 128, 0, 128 ]},
+    { coordinates: [ -5, -5, -5 ],  color: white,   textureCoordinates: [ 0.64, 0.535 ] },
+    { coordinates: [ 5, -5, -5 ],   color: white,   textureCoordinates: [ 0.36, 0.535 ] },
+    { coordinates: [ 5, 5, -5 ],    color: white,   textureCoordinates: [ 0.36, 0.32 ] },
+    { coordinates: [ -5, 5, -5 ],   color: white,   textureCoordinates: [ 0.64, 0.32 ] },
+    { coordinates: [ -5, -5, 5 ],   color: white,   textureCoordinates: [ 0, 0 ]},
+    { coordinates: [ 5, -5, 5 ],    color: white,   textureCoordinates: [ 0, 0 ]},
+    { coordinates: [ 5, 5, 5 ],     color: white,   textureCoordinates: [ 0, 0 ]},
+    { coordinates: [ -5, 5, 5 ],    color: white,   textureCoordinates: [ 0, 0 ]},
 ];
 export const simpleCubeIndices: Index[] = [
     0, 1, 2,
     0, 2, 3,
+
     4, 5, 6,
     4, 6, 7,
 
@@ -49,5 +53,5 @@ export const simpleCubeIndices: Index[] = [
     0, 4, 5,
     0, 5, 1,
     3, 7, 6,
-    3, 6, 2
+    3, 6, 2,
 ];

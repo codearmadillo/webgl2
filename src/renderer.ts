@@ -18,6 +18,7 @@ class Renderer implements WebGlRenderer {
     private $frameTimestamp: number | null = null;
     private $interval = 1000 / 60;
     private $projection: mat4 = mat4.create();
+    private $texture: any | null = null;
 
     private $width!: number;
     private $height!: number;
@@ -61,6 +62,21 @@ class Renderer implements WebGlRenderer {
         this.webgl.enable(this.webgl.DEPTH_TEST);
         this.webgl.blendFunc(this.webgl.SRC_ALPHA, this.webgl.ONE_MINUS_SRC_ALPHA);
 
+        // gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+        this.$texture = this.webgl.createTexture();
+        this.webgl.bindTexture(this.webgl.TEXTURE_2D, this.$texture);
+        this.webgl.texImage2D(this.webgl.TEXTURE_2D, 0, this.webgl.RGBA, 1, 1, 0, this.webgl.RGBA, this.webgl.UNSIGNED_BYTE,
+            new Uint8Array([0, 0, 255, 255]));
+
+        const image = new Image();
+        image.src = "./cat-texture.jpg";
+        image.addEventListener('load', () => {
+            this.webgl.bindTexture(this.webgl.TEXTURE_2D, this.$texture);
+            this.webgl.texImage2D(this.webgl.TEXTURE_2D, 0, this.webgl.RGBA, this.webgl.RGBA, this.webgl.UNSIGNED_BYTE, image);
+            this.webgl.generateMipmap(this.webgl.TEXTURE_2D);
+        });
+
         return this;
     }
 
@@ -86,6 +102,8 @@ class Renderer implements WebGlRenderer {
 
             this.webgl.clearColor(0.0, 0.0, 0.0, 1.0);
             this.webgl.clear(this.webgl.COLOR_BUFFER_BIT);
+
+            this.webgl.uniform1i(this.shader.uTextureLocation, 0);
 
             if (this.$drawCallback) {
                 this.$drawCallback();

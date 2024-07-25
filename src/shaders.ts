@@ -1,4 +1,5 @@
 export const vertexShaderSource = `#version 300 es
+  precision highp float;
   
   layout (location = 0) in vec3 a_position;
   layout (location = 1) in vec3 a_color;
@@ -10,21 +11,25 @@ export const vertexShaderSource = `#version 300 es
   uniform mat4 u_projection;
   
   out vec4 vertexColor;
+  out vec2 vTextureCoord;
 
   void main() {
     gl_Position = u_projection * u_view * u_model * vec4(a_position, 1.0);
     vertexColor = vec4(a_color, 1.0);
+    vTextureCoord = a_textCoord;
   }
 `;
 export const fragmentShaderSource = `#version 300 es
-  
   precision highp float;
   
-  in vec4 vertexColor;
+  in vec2 vTextureCoord;
+ 
+  uniform sampler2D u_texture;
   out vec4 outColor;
+  in vec4 vertexColor;
   
   void main() {
-    outColor = vertexColor;
+    outColor = texture(u_texture, vTextureCoord);
   }
 `;
 
@@ -37,6 +42,10 @@ export class Shader {
       throw new Error('Attempted to get program but it was not initialised');
     }
     return this.$program;
+  }
+
+  public get uTextureLocation() {
+    return this.$webgl.getUniformLocation(this.program, 'u_texture');
   }
 
   public get uModelUniformLocation() {
