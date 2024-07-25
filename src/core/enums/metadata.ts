@@ -1,4 +1,5 @@
 export enum Metadata {
   ComponentIdentifier,
-  SystemSignature,
+  SystemIdentifier,
+  SystemSignature
 }

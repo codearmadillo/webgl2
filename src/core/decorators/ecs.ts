@@ -6,13 +6,13 @@ import {ComponentManager} from "../abstract/ecs/component-manager.ts";
 
 export function Component() {
   return function (constructor: Constructor<T>) {
-    console.log("component", ComponentManager.instance);
     Reflect.defineMetadata(Metadata.ComponentIdentifier, generateUUIDv4(), constructor.prototype);
   }
 }
 
 export function Behaviour(...components: Constructor<T>[]) {
   return function <T extends Constructor<T>>(behaviour: T) {
+    Reflect.defineMetadata(Metadata.SystemIdentifier, generateUUIDv4(), behaviour.prototype);
     return class extends behaviour {
       constructor(...args: any[]) {
         super(...args);

@@ -1,13 +1,13 @@
 import {EventDispatcher} from "../events.ts";
 import {IComponentArray, IComponentManager} from "../../interfaces/ecs.ts";
 import {EntityManager} from "./entity-manager.ts";
-import {Entity} from "../../types/ecs.ts";
+import {ComponentManagerEvent, Entity, EntityManagerEvent} from "../../types/ecs.ts";
 import {Constructor} from "../../types/common.ts";
 import {Metadata} from "../../enums/metadata.ts";
 import {ComponentArray} from "./component-array.ts";
 import "reflect-metadata";
 
-export class ComponentManager implements IComponentManager {
+export class ComponentManager extends EventDispatcher<ComponentManagerEvent> implements IComponentManager {
   private static $instance: ComponentManager;
   private $count: number = 0;
   private $arrays: Map<string, IComponentArray<any>> = new Map();
@@ -16,6 +16,7 @@ export class ComponentManager implements IComponentManager {
   }
 
   private constructor() {
+    super();
     this.$entities.on('destroyed', this.onEntityDestroyed.bind(this));
   }
 
@@ -27,7 +28,6 @@ export class ComponentManager implements IComponentManager {
     if (this.$arrays.has(uuid)) {
       throw new Error(`Failed to register component of type ${component.name} - already registered`);
     }
-    // Reflect.defineMetadata(Metadata.ComponentSignature, component.prototype, this.$count);
     this.$count++;
     this.$arrays.set(uuid, new ComponentArray<T>());
   }
@@ -35,11 +35,13 @@ export class ComponentManager implements IComponentManager {
   add(entity: Entity, component: T) {
     const uuid = this.getUuidOrThrow(component.constructor);
     this.$arrays.get(uuid).add(entity, component);
+    this.dispatch('entity-component-added', entity, this.getComponentSignatureIndex(component.constructor));
   }
 
   remove(entity: Entity, component: Constructor<T>) {
     const uuid = this.getUuidOrThrow(component);
     this.$arrays.get(uuid).remove(entity);
+    this.dispatch('entity-component-removed', entity, this.getComponentSignatureIndex(component));
   }
 
   get(entity: Entity, component: Constructor<T>): T {
