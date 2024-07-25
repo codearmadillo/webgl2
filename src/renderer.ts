@@ -16,7 +16,8 @@ class Renderer implements WebGlRenderer {
     private $updateCallback!: (dt: number) => any;
     private $drawCallback!: () => any;
     private $frameTimestamp: number | null = null;
-    private $interval = 1000 / 60;
+    private $frames: number = 0;
+    private $framesTimer: number = 0;
     private $projection: mat4 = mat4.create();
     private $texture: any | null = null;
 
@@ -62,7 +63,7 @@ class Renderer implements WebGlRenderer {
         this.webgl.enable(this.webgl.DEPTH_TEST);
         this.webgl.blendFunc(this.webgl.SRC_ALPHA, this.webgl.ONE_MINUS_SRC_ALPHA);
 
-        // gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+        this.webgl.viewport(0, 0, this.webgl.canvas.width, this.webgl.canvas.height);
 
         this.$texture = this.webgl.createTexture();
         this.webgl.bindTexture(this.webgl.TEXTURE_2D, this.$texture);
@@ -82,33 +83,44 @@ class Renderer implements WebGlRenderer {
 
     start() {
         this.webgl.useProgram(this.$shader.program);
+        requestAnimationFrame(this.frame.bind(this));
+    }
 
-        setInterval(() => {
-            let delta = 0;
-            if (this.$frameTimestamp !== null) {
-                const now = new Date().getTime();
-                delta = now - this.$frameTimestamp;
-                this.$frameTimestamp = now;
-            } else {
-                this.$frameTimestamp = new Date().getTime();
-            }
+    private frame(timeStamp: number) {
+        let delta = 0;
+        if (this.$frameTimestamp !== null) {
+            delta = timeStamp - this.$frameTimestamp;
+            this.$frameTimestamp = timeStamp;
+        } else {
+            this.$frameTimestamp = timeStamp;
+        }
 
-            if (this.$updateCallback) {
-                this.$updateCallback(delta);
-            }
+        this.$framesTimer += delta;
+        if (this.$framesTimer > 1000) {
+            document.getElementById('fps-value')!.innerText = this.$frames.toString();
+            this.$frames = 0;
+            this.$framesTimer -= 1000;
+        } else {
+            this.$frames++;
+        }
 
-            this.webgl.uniformMatrix4fv(this.$shader.uViewUniformLocation, false, this.$camera.view);
-            this.webgl.uniformMatrix4fv(this.$shader.uProjectionUniformLocation, false, this.$projection);
+        if (this.$updateCallback) {
+            this.$updateCallback(delta);
+        }
 
-            this.webgl.clearColor(0.0, 0.0, 0.0, 1.0);
-            this.webgl.clear(this.webgl.COLOR_BUFFER_BIT);
+        this.webgl.uniformMatrix4fv(this.$shader.uViewUniformLocation, false, this.$camera.view);
+        this.webgl.uniformMatrix4fv(this.$shader.uProjectionUniformLocation, false, this.$projection);
 
-            this.webgl.uniform1i(this.shader.uTextureLocation, 0);
+        this.webgl.clearColor(0.0, 0.0, 0.0, 1.0);
+        this.webgl.clear(this.webgl.COLOR_BUFFER_BIT);
 
-            if (this.$drawCallback) {
-                this.$drawCallback();
-            }
-        }, this.$interval);
+        this.webgl.uniform1i(this.shader.uTextureLocation, 0);
+
+        if (this.$drawCallback) {
+            this.$drawCallback();
+        }
+
+        requestAnimationFrame(this.frame.bind(this));
     }
 
     update(callback: (dt: number) => any) {

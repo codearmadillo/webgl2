@@ -18,6 +18,9 @@ const CUBE_MOVEMENT_SPEED = 0.15;
 
 let isCameraRotatingLeft = false;
 let isCameraRotatingRight = false;
+
+let isCubeRotatingForward = false;
+let isCubeRotatingBackward = false;
 let isCubeMovingLeft = false;
 let isCubeMovingRight = false;
 let isCubeMovingForward = false;
@@ -26,6 +29,8 @@ let isCubeMovingBackward = false;
 window.addEventListener('keydown', (e) => {
   isCameraRotatingLeft = e.key === 'ArrowLeft';
   isCameraRotatingRight = e.key === 'ArrowRight';
+  isCubeRotatingForward = e.key === 'ArrowUp';
+  isCubeRotatingBackward = e.key === 'ArrowDown';
   isCubeMovingLeft = e.key === 'a';
   isCubeMovingRight = e.key === 'd';
   isCubeMovingForward = e.key === 'w';
@@ -34,6 +39,8 @@ window.addEventListener('keydown', (e) => {
 window.addEventListener('keyup', (e) => {
   isCameraRotatingLeft = e.key === 'ArrowLeft' && false;
   isCameraRotatingRight = e.key === 'ArrowRight' && false;
+  isCubeRotatingForward = e.key === 'ArrowUp' && false;
+  isCubeRotatingBackward = e.key === 'ArrowDown' && false;
   isCubeMovingLeft = e.key === 'a' && false;
   isCubeMovingRight = e.key === 'd' && false;
   isCubeMovingForward = e.key === 'w' && false;
@@ -48,6 +55,12 @@ renderer
     }
     if (isCameraRotatingRight && !isCameraRotatingLeft) {
       renderer.camera.rotate(CAMERA_ROTATION_SPEED * dt);
+    }
+    if (isCubeRotatingForward && !isCubeRotatingBackward) {
+      cube.rotateX(0.5 * dt);
+    }
+    if (isCubeRotatingBackward && !isCubeRotatingForward) {
+      cube.rotateX(-0.5 * dt);
     }
     if (isCubeMovingLeft && !isCubeMovingRight) {
       cube.translate([CUBE_MOVEMENT_SPEED * dt, 0, 0]);

@@ -37,6 +37,9 @@ export class WebGlElement<T> {
     translate(xyz: vec3) {
         mat4.translate(this.$model, this.$model, xyz);
     }
+    rotateX(angleInDegrees: number) {
+        mat4.rotate(this.$model, this.$model, angleInDegrees * Math.PI / 180, [1, 0, 0]);
+    }
     private buildWebGlBuffers() {
         this.$vao = this.$renderer.webgl.createVertexArray();
         if (!this.$vao) {
